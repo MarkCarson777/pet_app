@@ -1,0 +1,9 @@
+<% if pets.empty? %>
+  <div class="alert alert-info">No pets found.</div>
+<% else %>
+  <div class="row">
+    <% pets.each do |pet| %>
+      <%= render pet %>
+    <% end %>
+  </div>
+<% end %>

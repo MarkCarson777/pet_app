@@ -1,0 +1,65 @@
+<div class="container-fluid p-0">
+  <!-- Landing Banner -->
+  <div class="bg-primary text-white text-center py-5 d-flex align-items-center" style="height: 100vh;">
+    <div class="container">
+      <h1 class="display-4">Header</h1>
+      <button class="btn btn-light btn-lg mt-3" onclick="scrollToPets()">Scroll down</button>
+    </div>
+  </div>
+
+  <!-- Pets Section -->
+  <div class="container py-5" id="pets-section">
+    <h1>All Pets</h1>
+
+    <!-- Search Form -->
+    <%= form_with url: pets_path, method: :get, class: "mb-4", id: "search-form", data: { turbo: false } do %>
+      <div class="input-group w-50 mx-auto">
+        <%= text_field_tag :query,
+              params[:query],
+              class: "form-control",
+              placeholder: "Search pets by name or description" %>
+        <button class="btn btn-primary" type="submit">Search</button>
+      </div>
+    <% end %>
+
+    <!-- Pets List -->
+    <div class="pets-list">
+      <%= render 'pets_list', pets: @pets %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function scrollToPets() {
+    document.getElementById('pets-section').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    const searchForm = document.getElementById('search-form');
+
+    searchForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const searchTerm = this.querySelector('input[name="query"]').value;
+      const url = new URL(this.action, window.location.origin);
+      url.searchParams.append('query', searchTerm);
+
+      fetch(url, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      })
+        .then((response) => response.text())
+        .then((html) => {
+          document.querySelector('.pets-list').innerHTML = html;
+
+          // Update URL without page reload
+          const stateObj = { query: searchTerm };
+          window.history.pushState(stateObj, '', url);
+        })
+        .catch((error) => {
+          console.error('Error performing search:', error);
+        });
+    });
+  });
+</script>
